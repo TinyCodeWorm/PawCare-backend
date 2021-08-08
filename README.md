@@ -20,3 +20,14 @@ const (
 remember to change the user name and password!
 
 
+2.when you use "go run ." to start the server, the indexs will be created automaticly as below:
+
+	"pawcare_user"
+	"pet"
+	"food"
+	"reaction"
+	"pet_reaction"
+
+If the index exists, we do nothing, otherwise, we will create the index.
+For the index "reaction", we already put data in it, you can use it directly.
+
