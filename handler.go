@@ -45,8 +45,8 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": user.Email,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"email": user.Email,
+		"exp":   time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString(mySigningKey)
@@ -95,7 +95,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("User already exists")
 		return
 	}
-	fmt.Printf("User added successfully: %s.\n", user.Email)
+	fmt.Printf("user added successfully: %s.\n", user.Email)
 }
 
 func getprofileHandler(w http.ResponseWriter, r *http.Request) {
@@ -111,10 +111,46 @@ func getfoodsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func uploadfoodHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one upload request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"]
+
+	var food Food
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&food); err != nil {
+		http.Error(w, "Cannot decode food data from client", http.StatusBadRequest)
+		fmt.Printf("Cannot decode food data from client %v\n", err)
+		return
+	}
+
+	esfood := toEsFood(&food)
+	esfood.OwnerEmail = useremail.(string)
+
+	if err := saveToES(esfood, FOOD_INDEX, ""); err != nil {
+		http.Error(w, "Cannot save food data from client", http.StatusBadRequest)
+		fmt.Printf("Cannot save food data from client %v\n", err)
+	}
+
+	fmt.Println("food is saved successfully.")
 }
 
 func getreactionsHandler(w http.ResponseWriter, r *http.Request) {
+
 }
 
-func uploadreactionHandler(w http.ResponseWriter, r *http.Request) {
+func getpetreactionsHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+func uploadpetreactionHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+func getallergensHandler(w http.ResponseWriter, r *http.Request) {
 }

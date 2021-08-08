@@ -15,9 +15,9 @@ var PhotoTypes = map[string]string{
 }
 
 type Pet struct {
-	Photourl string `json:"photourl"`
-	Type     string `json:"type"`
 	Name     string `json:"name"`
+	Photourl string `json:"photo"`
+	Type     string `json:"type"`
 	Weight   string `json:"weight"`
 	AgeYear  string `json:"ageyear"`
 	AgeMonth string `json:"agemonth"`
@@ -25,8 +25,49 @@ type Pet struct {
 	Breed    string `json:"breed"`
 }
 
+type esPet struct {
+	PetID      string `json:"pet_id"`
+	OwnerEmail string `json:"owner_email"`
+	Name       string `json:"name"`
+	Photourl   string `json:"photo"`
+	Type       string `json:"type"`
+	Weight     string `json:"weight"`
+	AgeYear    string `json:"ageyear"`
+	AgeMonth   string `json:"agemonth"`
+	Sex        string `json:"sex"`
+	Breed      string `json:"breed"`
+}
+
+func toEsPet(pet *Pet) esPet {
+	return esPet{
+		PetID:      "",
+		OwnerEmail: "",
+		Name:       pet.Name,
+		Photourl:   pet.Photourl,
+		Type:       pet.Type,
+		Weight:     pet.Weight,
+		AgeYear:    pet.AgeYear,
+		AgeMonth:   pet.AgeMonth,
+		Sex:        pet.Sex,
+		Breed:      pet.Breed,
+	}
+}
+
+func toPet(espet *esPet) Pet {
+	return Pet{
+		Photourl: espet.Photourl,
+		Type:     espet.Type,
+		Name:     espet.Name,
+		Weight:   espet.Weight,
+		AgeYear:  espet.AgeYear,
+		AgeMonth: espet.AgeMonth,
+		Sex:      espet.Sex,
+		Breed:    espet.Breed,
+	}
+}
+
 type Food struct {
-	FoodName    string `json:"foodname"`
+	FoodName    string `json:"name"`
 	Brand       string `json:"brand"`
 	Ingredient1 string `json:"ingredient1"`
 	Ingredient2 string `json:"ingredient2"`
@@ -36,17 +77,64 @@ type Food struct {
 	Ingredient6 string `json:"ingredient6"`
 }
 
+type esFood struct {
+	OwnerEmail  string `json:"owner_email"`
+	FoodName    string `json:"name"`
+	Brand       string `json:"brand"`
+	Ingredient1 string `json:"ingredient1"`
+	Ingredient2 string `json:"ingredient2"`
+	Ingredient3 string `json:"ingredient3"`
+	Ingredient4 string `json:"ingredient4"`
+	Ingredient5 string `json:"ingredient5"`
+	Ingredient6 string `json:"ingredient6"`
+}
+
+func toEsFood(food *Food) esFood {
+	return esFood{
+		OwnerEmail:  "",
+		FoodName:    food.FoodName,
+		Brand:       food.Brand,
+		Ingredient1: food.Ingredient1,
+		Ingredient2: food.Ingredient2,
+		Ingredient3: food.Ingredient3,
+		Ingredient4: food.Ingredient4,
+		Ingredient5: food.Ingredient5,
+		Ingredient6: food.Ingredient6,
+	}
+}
+
+func toFood(esfood *esFood) Food {
+	return Food{
+		FoodName:    esfood.FoodName,
+		Brand:       esfood.Brand,
+		Ingredient1: esfood.Ingredient1,
+		Ingredient2: esfood.Ingredient2,
+		Ingredient3: esfood.Ingredient3,
+		Ingredient4: esfood.Ingredient4,
+		Ingredient5: esfood.Ingredient5,
+		Ingredient6: esfood.Ingredient6,
+	}
+}
+
 type Reaction struct {
 	Name        string `json:"reaction_name"`
 	Description string `json:"reaction_description"`
+}
+
+type PetReaction struct {
+	OwnerEmail   string `json:"owner_email"`
+	PetName      string `json:"pet_name"`
+	FoodName     string `json:"food_name"`
+	ReactionDate string `json:"reaction_date"`
+	ReactionName string `json:"reaction_name"`
 }
 
 const userMapping = `{
 	"mappings": {
 		"properties": {
 			"email":       { "type": "keyword" },
-			"firstname":   { "type": "keyword", "index": false },
-			"lastname":    { "type": "keyword", "index": false },
+			"firstname":   { "type": "keyword" },
+			"lastname":    { "type": "keyword" },
 			"password":    { "type": "keyword" }
 		}
 	}
@@ -55,15 +143,16 @@ const userMapping = `{
 const petMapping = `{
 	"mappings": {
 		"properties": {
+			"pet_id":   	 { "type": "keyword" },
 			"owner_email":   { "type": "keyword" },
 			"name":          { "type": "keyword" },
 			"photo":         { "type": "keyword", "index": false },
 			"type":          { "type": "keyword"},
-			"weight":        { "type": "keyword", "index": false },
-			"ageyear":       { "type": "keyword", "index": false },
-			"agemonth":      { "type": "keyword", "index": false },
-			"sex":           { "type": "keyword", "index": false },
-			"breed":         { "type": "keyword", "index": false }
+			"weight":        { "type": "keyword" },
+			"ageyear":       { "type": "keyword" },
+			"agemonth":      { "type": "keyword" },
+			"sex":           { "type": "keyword"},
+			"breed":         { "type": "keyword"}
 		}
 	}
 }`
@@ -71,7 +160,7 @@ const petMapping = `{
 const foodMapping = `{
 	"mappings": {
 		"properties": {
-			"pet_id":         { "type": "integer" },
+			"owner_email":   { "type": "keyword" },
 			"name":           { "type": "keyword" },
 			"brand":          { "type": "keyword"},
 			"ingredient1":    { "type": "keyword"},
@@ -98,9 +187,9 @@ const petreactionMpping = `{
 		"properties": {
 			"owner_email":                   { "type": "keyword" },
 			"pet_name":                      { "type": "keyword" },
-			"reaction_name":                 { "type": "keyword" },
 			"food_name":                     { "type": "keyword" },
-			"reaction_date":                 { "type": "date" }
+			"reaction_date":                 { "type": "date" },
+			"reaction_name":                 { "type": "keyword" }
 		}
 	}
 }`

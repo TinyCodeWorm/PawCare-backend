@@ -27,12 +27,19 @@ func main() {
 	r.Handle("/signup", http.HandlerFunc(signupHandler)).Methods("POST", "OPTIONS")
 	r.Handle("/signin", http.HandlerFunc(signinHandler)).Methods("POST", "OPTIONS")
 	r.Handle("/getprofile", jwtMiddleware.Handler(http.HandlerFunc(getprofileHandler))).Methods("GET", "OPTIONS")
+
 	r.Handle("/getpets", jwtMiddleware.Handler(http.HandlerFunc(getpetsHandler))).Methods("GET", "OPTIONS")
 	r.Handle("/uploadpet", jwtMiddleware.Handler(http.HandlerFunc(uploadpetHandler))).Methods("POST", "OPTIONS")
+
 	r.Handle("/getfoods", jwtMiddleware.Handler(http.HandlerFunc(getfoodsHandler))).Methods("GET", "OPTIONS")
 	r.Handle("/uploadfood", jwtMiddleware.Handler(http.HandlerFunc(uploadfoodHandler))).Methods("POST", "OPTIONS")
+
+	r.Handle("/getpetreactions", jwtMiddleware.Handler(http.HandlerFunc(getpetreactionsHandler))).Methods("GET", "OPTIONS")
+	r.Handle("/uploadpetreaction", jwtMiddleware.Handler(http.HandlerFunc(uploadpetreactionHandler))).Methods("POST", "OPTIONS")
+
 	r.Handle("/getreactions", jwtMiddleware.Handler(http.HandlerFunc(getreactionsHandler))).Methods("GET", "OPTIONS")
-	r.Handle("/uploadreaction", jwtMiddleware.Handler(http.HandlerFunc(uploadreactionHandler))).Methods("POST", "OPTIONS")
+
+	r.Handle("/getallergens", jwtMiddleware.Handler(http.HandlerFunc(getallergensHandler))).Methods("GET", "OPTIONS")
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
