@@ -88,12 +88,12 @@ func setupDB() {
 	createIndex(client, PETREACTION_INDEX, petreactionMpping)
 
 	var arrayReaction = [6][2]string{
-		{"No Reaction", "descrition"},
-		{"Diarrhea", "descrition"},
-		{"Ear infection", "descrition"},
-		{"Scratching", "descrition"},
-		{"Sneezing", "descrition"},
-		{"Vomiting", "descrition"},
+		{"No Reaction", "description"},
+		{"Diarrhea", "description"},
+		{"Ear Infection", "description"},
+		{"Scratching", "description"},
+		{"Sneezing", "description"},
+		{"Vomiting", "description"},
 	}
 
 	for _, v := range arrayReaction {
