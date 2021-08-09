@@ -144,6 +144,24 @@ func uploadfoodHandler(w http.ResponseWriter, r *http.Request) {
 
 func getreactionsHandler(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("Received one getreactions request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	reactions := getAllReactions(w)
+
+	js, err := json.Marshal(reactions)
+	if err != nil {
+		http.Error(w, "Failed to parse reaction into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse reaction into JSON format %v.\n", err)
+		return
+	}
+	w.Write(js)
+
 }
 
 func getpetreactionsHandler(w http.ResponseWriter, r *http.Request) {
