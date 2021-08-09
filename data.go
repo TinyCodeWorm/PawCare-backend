@@ -176,7 +176,7 @@ const foodMapping = `{
 const reactionMapping = `{
 	"mappings": {
 		"properties": {
-			"name":         { "type": "keyword" },
+			"name":         { "type": "text" },
 			"description":  { "type": "keyword" }
 		}
 	}
