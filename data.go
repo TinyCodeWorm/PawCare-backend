@@ -121,6 +121,15 @@ type Reaction struct {
 	Description string `json:"reaction_description"`
 }
 
+type Breed struct {
+	Species string `json:"animal_specie"`
+}
+
+type esBreed struct {
+	Species string `json:"animal_specie"`
+	Name    string `json:"breed_name"`
+}
+
 type PetReaction struct {
 	OwnerEmail   string `json:"owner_email"`
 	PetName      string `json:"pet_name"`
@@ -178,6 +187,15 @@ const reactionMapping = `{
 		"properties": {
 			"name":         { "type": "text" },
 			"description":  { "type": "keyword" }
+		}
+	}
+}`
+
+const breedMapping = `{
+	"mappings": {
+		"properties": {
+			"animal_specie":       { "type": "keyword" },
+			"breed_name":          { "type": "keyword" }
 		}
 	}
 }`
