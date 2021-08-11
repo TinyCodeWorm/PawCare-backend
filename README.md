@@ -31,3 +31,5 @@ remember to change the user name and password!
 If the index exists, we do nothing, otherwise, we will create the index.
 For the index "reaction", we already put data in it, you can use it directly.
 
+
+Ying Liu
