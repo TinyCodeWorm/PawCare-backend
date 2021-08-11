@@ -13,6 +13,7 @@ const (
 	FOOD_INDEX        = "food"
 	REACTION_INDEX    = "reaction"
 	PETREACTION_INDEX = "pet_reaction"
+	BREED_INDEX       = "breed"
 )
 
 func readFromES(query elastic.Query, index string) (*elastic.SearchResult, error) {
@@ -86,24 +87,10 @@ func setupDB() {
 	createIndex(client, FOOD_INDEX, foodMapping)
 	createIndex(client, REACTION_INDEX, reactionMapping)
 	createIndex(client, PETREACTION_INDEX, petreactionMpping)
+	createIndex(client, BREED_INDEX, breedMapping)
 
-	var arrayReaction = [6][2]string{
-		{"No Reaction", "description"},
-		{"Diarrhea", "description"},
-		{"Ear Infection", "description"},
-		{"Scratching", "description"},
-		{"Sneezing", "description"},
-		{"Vomiting", "description"},
-	}
-
-	for _, v := range arrayReaction {
-		reaction := Reaction{
-			Name:        v[0],
-			Description: v[1],
-		}
-		saveToES(&reaction, REACTION_INDEX, "")
-		fmt.Println(" add reaction ")
-	}
+	addReactionData()
+	addBreedsData()
 
 }
 

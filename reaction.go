@@ -8,6 +8,26 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
+func addReactionData() {
+	var arrayReaction = [6][2]string{
+		{"No Reaction", "description"},
+		{"Diarrhea", "description"},
+		{"Ear Infection", "description"},
+		{"Scratching", "description"},
+		{"Sneezing", "description"},
+		{"Vomiting", "description"},
+	}
+
+	for _, v := range arrayReaction {
+		reaction := Reaction{
+			Name:        v[0],
+			Description: v[1],
+		}
+		saveToES(&reaction, REACTION_INDEX, "")
+		fmt.Println(" add reaction ")
+	}
+}
+
 func getAllReactions(w http.ResponseWriter) []Reaction {
 	query := elastic.NewMatchQuery("name", "")
 	query.ZeroTermsQuery("all")
@@ -18,6 +38,7 @@ func getAllReactions(w http.ResponseWriter) []Reaction {
 	}
 
 	var reaction Reaction
+
 	var reactions []Reaction
 
 	for _, item := range searchResult.Each(reflect.TypeOf(reaction)) {
