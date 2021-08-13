@@ -110,7 +110,7 @@ func getpetsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//  no request body
+	//  no request body in getpetsHandler
 	// decoder := json.NewDecoder(r.Body)
 	// var pet Pet
 	// if err := decoder.Decode(&pet); err != nil {
