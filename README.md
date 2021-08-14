@@ -9,11 +9,11 @@ package main
 
 const (
 
-	ES_URL      = "http://34.135.235.101:9200"
+	ES_URL      = "http://xxx.xxx.xxx.xxx:9200"
 	
-	ES_USERNAME = "elastic"
+	ES_USERNAME = "your ElasticSearch name"
 	
-	ES_PASSWORD = "lyhK0FMIzzffLiAt073J"
+	ES_PASSWORD = "your ElasticSearch password"
 )
 
 
