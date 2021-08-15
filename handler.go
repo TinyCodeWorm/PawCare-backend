@@ -99,6 +99,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getprofileHandler(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func getpetsHandler(w http.ResponseWriter, r *http.Request) {
@@ -108,6 +109,7 @@ func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getfoodsHandler(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func uploadfoodHandler(w http.ResponseWriter, r *http.Request) {
@@ -164,9 +166,57 @@ func getreactionsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getpetreactionsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one getprofile request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"].(string)
+
+	petreactions, err := getPetReactions(w, useremail)
+	if err != nil {
+		http.Error(w, "Failed to parse petreactions into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse petreactions into JSON format %v.\n", err)
+	}
+
+	js, err := json.Marshal(petreactions)
+	if err != nil {
+		http.Error(w, "Failed to parse petreactions into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse petreactions into JSON format %v.\n", err)
+		return
+	}
+
+	w.Write(js)
 }
 
 func uploadpetreactionHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one upload request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"].(string)
+
+	var petrea Petrea
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&petrea); err != nil {
+		http.Error(w, "Cannot decode Pet Reaction data from client", http.StatusBadRequest)
+		fmt.Printf("Cannot decode Pet Reaction data from client %v\n", err)
+		return
+	}
+
+	uploadPetRea(w, petrea, useremail)
+
 }
 
 func getallergensHandler(w http.ResponseWriter, r *http.Request) {
