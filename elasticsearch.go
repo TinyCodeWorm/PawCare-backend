@@ -101,7 +101,7 @@ func createIndex(client *elastic.Client, index string, mapping string) {
 	}
 
 	if index_exists {
-		if index != REACTION_INDEX {
+		if index != REACTION_INDEX && index != BREED_INDEX {
 			return
 		}
 
