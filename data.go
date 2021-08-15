@@ -7,6 +7,12 @@ type User struct {
 	Email     string `json:"email"`
 }
 
+type Profile struct {
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Email     string `json:"email"`
+}
+
 var PhotoTypes = map[string]string{
 	".jpeg": "image",
 	".jpg":  "image",
@@ -130,12 +136,24 @@ type esBreed struct {
 	Name    string `json:"breed_name"`
 }
 
-type PetReaction struct {
+type esPetReaction struct {
 	OwnerEmail   string `json:"owner_email"`
 	PetName      string `json:"pet_name"`
 	FoodName     string `json:"food_name"`
 	ReactionDate string `json:"reaction_date"`
 	ReactionName string `json:"reaction_name"`
+}
+
+type PetReaction struct {
+	FoodName     string `json:"food_name"`
+	ReactionDate string `json:"reaction_date"`
+	ReactionName string `json:"reaction_name"`
+}
+
+type Petrea struct {
+	ReactionDate string   `json:"reaction_date"`
+	FoodName     string   `json:"food_name"`
+	Reactions    []string `json:"reaction_name"`
 }
 
 const userMapping = `{
@@ -206,7 +224,7 @@ const petreactionMpping = `{
 			"owner_email":                   { "type": "keyword" },
 			"pet_name":                      { "type": "keyword" },
 			"food_name":                     { "type": "keyword" },
-			"reaction_date":                 { "type": "date" },
+			"reaction_date":                 { "type": "date", "format": "yyyy-MM-dd" },
 			"reaction_name":                 { "type": "keyword" }
 		}
 	}
