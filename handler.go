@@ -103,6 +103,33 @@ func getprofileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getpetsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one getPets request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	//  no request body in getpetsHandler
+	// decoder := json.NewDecoder(r.Body)
+	// var pet Pet
+	// if err := decoder.Decode(&pet); err != nil {
+	// 	http.Error(w, "Cannot decode pet data from client", http.StatusBadRequest)
+	// 	fmt.Printf("Cannot decode pet data from client %v\n", err)
+	// 	return
+	// }
+
+	pets := getAllPets(w)
+
+	js, err := json.Marshal(pets)
+	if err != nil {
+		http.Error(w, "Failed to parse pets into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse pets into JSON format %v.\n", err)
+		return
+	}
+
+	w.Write(js)
 }
 
 func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
