@@ -9,12 +9,6 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-type Profile struct {
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Email     string `json:"email"`
-}
-
 const profileMapping = `{
 	"mappings": {
 		"properties": {
