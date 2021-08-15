@@ -109,7 +109,32 @@ func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getfoodsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one getfoods request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
 
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"].(string)
+
+	allFood, err := getFoods(w, useremail)
+	if err != nil {
+		http.Error(w, "Failed to parse foods into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse foods into JSON format %v.\n", err)
+	}
+
+	js, err := json.Marshal(allFood)
+	if err != nil {
+		http.Error(w, "Failed to parse foods into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse foods into JSON format %v.\n", err)
+		return
+	}
+
+	w.Write(js)
 }
 
 func uploadfoodHandler(w http.ResponseWriter, r *http.Request) {
