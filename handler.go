@@ -99,7 +99,24 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getprofileHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one signup request")
+	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	profile := getProfile(w, r)
+
+	js, err := json.Marshal(profile)
+	if err != nil {
+		http.Error(w, "Failed to load my Profile", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse profile into JSON format %v.\n", err)
+		return
+	}
+	w.Write(js)
 }
 
 func getpetsHandler(w http.ResponseWriter, r *http.Request) {
