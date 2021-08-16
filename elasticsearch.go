@@ -91,6 +91,7 @@ func setupDB() {
 
 	addReactionData()
 	addBreedsData()
+	// addPetData()
 
 }
 
