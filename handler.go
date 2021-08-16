@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"time"
 
 	jwt "github.com/form3tech-oss/jwt-go"
+	"github.com/pborman/uuid"
 )
 
 var mySigningKey = []byte("secret")
@@ -123,6 +125,51 @@ func getpetsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one upload request")
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"]
+
+	myESPet := esPet{
+		PetID:      uuid.New(),
+		OwnerEmail: useremail.(string),
+		Name:       r.FormValue("name"),
+		Type:       r.FormValue("type"),
+		Weight:     r.FormValue("weight"),
+		AgeYear:    r.FormValue("ageyear"),
+		AgeMonth:   r.FormValue("agemonth"),
+		Sex:        r.FormValue("sex"),
+		Breed:      r.FormValue("breed"),
+	}
+
+	file, header, err := r.FormFile("photo")
+	if err != nil {
+		http.Error(w, "Media file is not available", http.StatusBadRequest)
+		fmt.Printf("Media file is not available %v\n", err)
+		return
+	}
+
+	suffix := filepath.Ext(header.Filename)
+	if _, ok := PhotoTypes[suffix]; !ok {
+		fmt.Printf("Photo format is not supported %v\n", err)
+	}
+
+	err = savePet(&myESPet, file)
+	if err != nil {
+		http.Error(w, "Failed to save post to GCS or Elasticsearch", http.StatusInternalServerError)
+		fmt.Printf("Failed to save post to GCS or Elasticsearch %v\n", err)
+		return
+	}
+
+	fmt.Println("Pet is saved successfully.")
 }
 
 func getfoodsHandler(w http.ResponseWriter, r *http.Request) {
