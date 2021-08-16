@@ -120,6 +120,32 @@ func getprofileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getpetsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one getPets request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"].(string)
+
+	allPets, err := getPets(w, useremail)
+	if err != nil {
+		http.Error(w, "Failed to parse pets into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse pets into JSON format %v.\n", err)
+	}
+
+	js, err := json.Marshal(allPets)
+	if err != nil {
+		http.Error(w, "Failed to parse pets into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse pets into JSON format %v.\n", err)
+		return
+	}
+
+	w.Write(js)
 }
 
 func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
