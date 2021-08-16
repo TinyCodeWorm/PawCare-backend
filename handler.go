@@ -101,7 +101,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getprofileHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received one signup request")
+	fmt.Println("Received one get profile request")
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -178,8 +178,8 @@ func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
 
 	file, header, err := r.FormFile("photo")
 	if err != nil {
-		http.Error(w, "Media file is not available", http.StatusBadRequest)
-		fmt.Printf("Media file is not available %v\n", err)
+		http.Error(w, "Photo  is not available", http.StatusBadRequest)
+		fmt.Printf("Photo  is not available %v\n", err)
 		return
 	}
 
