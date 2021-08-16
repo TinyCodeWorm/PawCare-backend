@@ -2,11 +2,23 @@ package main
 
 import (
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"reflect"
 
 	"github.com/olivere/elastic/v7"
 )
+
+
+func savePet(myESPet *esPet, file multipart.File) error {
+	medialink, err := saveToGCS(file, myESPet.PetID)
+	if err != nil {
+		return err
+	}
+	myESPet.Photourl = medialink
+
+	return saveToES(myESPet, PET_INDEX, myESPet.PetID)
+}
 
 // func addPetData() {
 // 	var arrayPet = [2][10]string{
@@ -32,6 +44,7 @@ import (
 // 		fmt.Println(" add pet ")
 // 	}
 // }
+
 
 func getPetReactions(w http.ResponseWriter, email string) ([]PetReaction, error) {
 	query := elastic.NewBoolQuery()
