@@ -18,6 +18,7 @@ var PhotoTypes = map[string]string{
 	".jpg":  "image",
 	".gif":  "image",
 	".png":  "image",
+	".bmp":  "image",
 }
 
 type Pet struct {
