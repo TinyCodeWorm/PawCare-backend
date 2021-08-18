@@ -39,7 +39,7 @@ func main() {
 
 	r.Handle("/getreactions", jwtMiddleware.Handler(http.HandlerFunc(getreactionsHandler))).Methods("GET", "OPTIONS")
 
-	r.Handle("/getbreeds", jwtMiddleware.Handler(http.HandlerFunc(getbreedsHandler))).Methods("GET", "OPTIONS")
+	r.Handle("/getbreeds", jwtMiddleware.Handler(http.HandlerFunc(getbreedsHandler))).Methods("POST", "OPTIONS")
 
 	r.Handle("/getallergens", jwtMiddleware.Handler(http.HandlerFunc(getallergensHandler))).Methods("GET", "OPTIONS")
 
