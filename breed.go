@@ -13,7 +13,7 @@ func addBreedsData() {
 		{"Dog", "Retrievers"},
 		{"Dog", "French Bulldogs"},
 		{"Dog", "German Shepherd Dogs"},
-		{"Dog", "Retrievers"},
+		{"Dog", "Pug"},
 		{"Dog", "Bulldogs"},
 		{"Dog", "Poodles"},
 
