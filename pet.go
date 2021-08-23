@@ -9,14 +9,14 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-
 func savePet(myESPet *esPet, file multipart.File) error {
-	medialink, err := saveToGCS(file, myESPet.PetID)
-	if err != nil {
-		return err
+	if file != nil {
+		medialink, err := saveToGCS(file, myESPet.PetID)
+		if err != nil {
+			return err
+		}
+		myESPet.Photourl = medialink
 	}
-	myESPet.Photourl = medialink
-
 	return saveToES(myESPet, PET_INDEX, myESPet.PetID)
 }
 
@@ -44,7 +44,6 @@ func savePet(myESPet *esPet, file multipart.File) error {
 // 		fmt.Println(" add pet ")
 // 	}
 // }
-
 
 func getPetReactions(w http.ResponseWriter, email string) ([]PetReaction, error) {
 	query := elastic.NewBoolQuery()

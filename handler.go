@@ -177,15 +177,14 @@ func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file, header, err := r.FormFile("photo")
-	if err != nil {
-		http.Error(w, "Photo  is not available", http.StatusBadRequest)
-		fmt.Printf("Photo  is not available %v\n", err)
-		return
-	}
+	if err == nil {
+		suffix := filepath.Ext(header.Filename)
+		if _, ok := PhotoTypes[suffix]; !ok {
+			fmt.Printf("Photo format is not supported %v\n", err)
+			http.Error(w, "Photo format is not supported", http.StatusBadRequest)
+			return
 
-	suffix := filepath.Ext(header.Filename)
-	if _, ok := PhotoTypes[suffix]; !ok {
-		fmt.Printf("Photo format is not supported %v\n", err)
+		}
 	}
 
 	err = savePet(&myESPet, file)
