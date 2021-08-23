@@ -10,40 +10,14 @@ import (
 )
 
 func savePet(myESPet *esPet, file multipart.File) error {
-	if file != nil {
-		medialink, err := saveToGCS(file, myESPet.PetID)
-		if err != nil {
-			return err
-		}
-		myESPet.Photourl = medialink
+	medialink, err := saveToGCS(file, myESPet.PetID)
+	if err != nil {
+		return err
 	}
+	myESPet.Photourl = medialink
+
 	return saveToES(myESPet, PET_INDEX, myESPet.PetID)
 }
-
-// func addPetData() {
-// 	var arrayPet = [2][10]string{
-// 		{"dog1", "description", "ss", "dsds", "dsds", "ss", "dsds", "dsds", "a@b.com", "1"},
-// 		{"dog2", "description", "ss", "dsds", "dsds", "ss", "dsds", "dsds", "a@b.com", "2"},
-// 	}
-
-// 	for _, v := range arrayPet {
-// 		pet := esPet{
-
-// 			Name:       v[0],
-// 			Photourl:   v[1],
-// 			Type:       v[2],
-// 			Weight:     v[3],
-// 			AgeYear:    v[4],
-// 			AgeMonth:   v[5],
-// 			Sex:        v[6],
-// 			Breed:      v[7],
-// 			OwnerEmail: v[8],
-// 			PetID:      v[9],
-// 		}
-// 		saveToES(&pet, PET_INDEX, "")
-// 		fmt.Println(" add pet ")
-// 	}
-// }
 
 func getPetReactions(w http.ResponseWriter, email string) ([]PetReaction, error) {
 	query := elastic.NewBoolQuery()

@@ -104,7 +104,7 @@ func getprofileHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received one get profile request")
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
 
 	if r.Method == "OPTIONS" {
 		return
@@ -334,6 +334,33 @@ func uploadpetreactionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getallergensHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one getallbreeds request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"].(string)
+
+	petAllergens, err := getPetAllergens(w, useremail)
+	if err != nil {
+		http.Error(w, "Failed to calculate petAllergens into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to calculate petAllergens into JSON format %v.\n", err)
+		return
+	}
+
+	js, err := json.Marshal(petAllergens)
+	if err != nil {
+		http.Error(w, "Failed to parse petAllergens into JSON format", http.StatusInternalServerError)
+		fmt.Printf("Failed to parse petAllergens into JSON format %v.\n", err)
+		return
+	}
+
+	w.Write(js)
+
 }
 
 func getbreedsHandler(w http.ResponseWriter, r *http.Request) {
