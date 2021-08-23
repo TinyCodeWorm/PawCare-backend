@@ -27,54 +27,55 @@ func getPetAllergens(w http.ResponseWriter, useremail string) ([]string, error) 
 
 	for i := 0; i < len(petReactions); i++ {
 		for j := 0; j < len(allFood); j++ {
-			alg1 := allFood[j].Ingredient1
-			alg2 := allFood[j].Ingredient2
-			alg3 := allFood[j].Ingredient3
-			alg4 := allFood[j].Ingredient4
-			alg5 := allFood[j].Ingredient5
-			alg6 := allFood[j].Ingredient6
 			if petReactions[i].FoodName == allFood[j].FoodName {
-
-				if !allergens[alg1] {
-					allergens[alg1] = true
-				}
-				if !allergens[alg2] {
-					allergens[alg2] = true
-				}
-				if !allergens[alg3] {
-					allergens[alg3] = true
-				}
-				if !allergens[alg4] {
-					allergens[alg4] = true
-				}
-				if !allergens[alg5] {
-					allergens[alg5] = true
-				}
-				if !allergens[alg6] {
-					allergens[alg6] = true
+				alg1 := allFood[j].Ingredient1
+				alg2 := allFood[j].Ingredient2
+				alg3 := allFood[j].Ingredient3
+				alg4 := allFood[j].Ingredient4
+				alg5 := allFood[j].Ingredient5
+				alg6 := allFood[j].Ingredient6
+				if petReactions[i].ReactionName == "No Reaction" {
+					if !noAllergens[alg1] {
+						noAllergens[alg1] = true
+					}
+					if !noAllergens[alg2] {
+						noAllergens[alg2] = true
+					}
+					if !noAllergens[alg3] {
+						noAllergens[alg3] = true
+					}
+					if !noAllergens[alg4] {
+						noAllergens[alg4] = true
+					}
+					if !noAllergens[alg5] {
+						noAllergens[alg4] = true
+					}
+					if !noAllergens[alg6] {
+						noAllergens[alg6] = true
+					}
+				} else {
+					if !allergens[alg1] {
+						allergens[alg1] = true
+					}
+					if !allergens[alg2] {
+						allergens[alg2] = true
+					}
+					if !allergens[alg3] {
+						allergens[alg3] = true
+					}
+					if !allergens[alg4] {
+						allergens[alg4] = true
+					}
+					if !allergens[alg5] {
+						allergens[alg5] = true
+					}
+					if !allergens[alg6] {
+						allergens[alg6] = true
+					}
 				}
 
 			}
-			if petReactions[i].ReactionName == "No Reaction" {
-				if !noAllergens[alg1] {
-					noAllergens[alg1] = true
-				}
-				if !noAllergens[alg2] {
-					noAllergens[alg2] = true
-				}
-				if !noAllergens[alg3] {
-					noAllergens[alg3] = true
-				}
-				if !noAllergens[alg4] {
-					noAllergens[alg4] = true
-				}
-				if !noAllergens[alg5] {
-					noAllergens[alg4] = true
-				}
-				if !noAllergens[alg6] {
-					noAllergens[alg6] = true
-				}
-			}
+
 		}
 
 	}
