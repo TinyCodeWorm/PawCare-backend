@@ -17,50 +17,77 @@ func getPetAllergens(w http.ResponseWriter, useremail string) ([]string, error) 
 	if error != nil {
 		http.Error(w, error.Error(), http.StatusBadRequest)
 		fmt.Printf("Cannot get petReaction data from user")
-	}
-
-	if err != nil {
+	} else if err != nil {
 		http.Error(w, error.Error(), http.StatusBadRequest)
 		fmt.Printf("Cannot get food data from user")
 	}
 
-	var noAllergens []string
-	var possibleAllergens []string
+	allergens := make(map[string]bool)
+	noAllergens := make(map[string]bool)
 
 	for i := 0; i < len(petReactions); i++ {
 		for j := 0; j < len(allFood); j++ {
+			alg1 := allFood[j].Ingredient1
+			alg2 := allFood[j].Ingredient2
+			alg3 := allFood[j].Ingredient3
+			alg4 := allFood[j].Ingredient4
+			alg5 := allFood[j].Ingredient5
+			alg6 := allFood[j].Ingredient6
 			if petReactions[i].FoodName == allFood[j].FoodName {
-				alg1 := allFood[j].Ingredient1
-				alg2 := allFood[j].Ingredient2
-				alg3 := allFood[j].Ingredient3
-				alg4 := allFood[j].Ingredient4
-				alg5 := allFood[j].Ingredient5
-				alg6 := allFood[j].Ingredient6
-				fmt.Printf(alg6)
-				if petReactions[i].ReactionName == "No Reaction" {
-					noAllergens = append(noAllergens, alg1, alg2, alg3, alg4, alg5, alg6)
-				} else {
-					possibleAllergens = append(possibleAllergens, alg1, alg2, alg3, alg4, alg5, alg6)
+				
+				if !allergens[alg1] {
+					allergens[alg1] = true
+				} 
+				if !allergens[alg2] {
+					allergens[alg2] = true
+				}
+				if !allergens[alg3] {
+					allergens[alg3] = true
+				}
+				if !allergens[alg4] {
+					allergens[alg4] = true
+				}
+				if !allergens[alg5] {
+					allergens[alg5] = true
+				} 
+				if !allergens[alg6] {
+					allergens[alg6] = true
 				}
 
+			} 
+			if petReactions[i].ReactionName == "No Reaction" {
+				if !noAllergens[alg1] {
+					noAllergens[alg1] = true
+				} 
+				if !noAllergens[alg2] {
+					noAllergens[alg2] = true
+				}
+				if !noAllergens[alg3] {
+					noAllergens[alg3] = true
+				}
+				if !noAllergens[alg4] {
+					noAllergens[alg4] = true
+				}
+				if !noAllergens[alg5]
+					noAllergens[alg5] = true
+				} 
+				if !noAllergens[alg6] {
+					noAllergens[alg6] = true
+				}
 			}
 		}
 
 	}
-
+	petAllergens []string
 	// filter noAllergen
-	return findAllergens(possibleAllergens, noAllergens), nil
-}
-
-func findAllergens(possibleAllergens, noAllergens []string) []string {
-	var petAllergens []string
-	for i := 0; i < len(possibleAllergens); i++ {
-		for j := 0; i < len(noAllergens); j++ {
-			if possibleAllergens[i] != noAllergens[j] {
-				petAllergens = append(petAllergens, possibleAllergens[i])
-			}
-		}
+	for allergen, item : range allergens {
+		if !noAllergens[allergen] {
+			petAllergens = append(petAllergens, allergen)
+		}	
 
 	}
-	return petAllergens
+		
+	return petAllergens, nil
 }
+
+
