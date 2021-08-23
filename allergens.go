@@ -42,7 +42,8 @@ func getPetAllergens(w http.ResponseWriter, useremail string) ([]string, error) 
 				alg4 := item.(Food).Ingredient4
 				alg5 := item.(Food).Ingredient5
 				alg6 := item.(Food).Ingredient6
-				if petReactions[i].ReactionName == "No Infection" {
+				fmt.Printf(alg6)
+				if petReactions[i].ReactionName == "No Reaction" {
 					noAllergens = append(noAllergens, alg1, alg2, alg3, alg4, alg5, alg6)
 				} else {
 					possibleAllergens = append(possibleAllergens, alg1, alg2, alg3, alg4, alg5, alg6)
