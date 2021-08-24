@@ -10,13 +10,38 @@ import (
 )
 
 func savePet(myESPet *esPet, file multipart.File) error {
-	medialink, err := saveToGCS(file, myESPet.PetID)
+
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name", myESPet.Name))
+	query.Must(elastic.NewTermQuery("owner_email", myESPet.OwnerEmail))
+
+	searchResult, err := readFromES(query, PET_INDEX)
 	if err != nil {
 		return err
 	}
-	myESPet.Photourl = medialink
 
+	if searchResult.TotalHits() > 0 {
+		return fmt.Errorf("the pet name exists: %s", myESPet.Name)
+	}
+
+	if file != nil {
+		medialink, err := saveToGCS(file, myESPet.PetID)
+		if err != nil {
+			return err
+		}
+		myESPet.Photourl = medialink
+	}
 	return saveToES(myESPet, PET_INDEX, myESPet.PetID)
+}
+
+func deletPet(useremail string, petname string) error {
+
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("owner_email", useremail))
+	query.Must(elastic.NewTermQuery("name", petname))
+
+	return deleteFromES(query, PET_INDEX)
+
 }
 
 func getPetReactions(w http.ResponseWriter, email string) ([]PetReaction, error) {
@@ -50,13 +75,23 @@ func uploadPetRea(w http.ResponseWriter, petrea Petrea, email string) {
 	var reas = petrea.Reactions
 	var espetrea esPetReaction
 
+	pets, err := getPets(w, email)
+	if err != nil {
+		return
+	}
+	if pets == nil {
+		http.Error(w, "no pet exists", http.StatusBadRequest)
+		return
+	}
+
+	firstPet := pets[0]
+
 	for _, rea := range reas {
 		espetrea.ReactionName = rea
 		espetrea.OwnerEmail = email
 		espetrea.FoodName = petrea.FoodName
 		espetrea.ReactionDate = petrea.ReactionDate
-		espetrea.PetName = "temp pet name"
-		//need a get pet function to add the pet name
+		espetrea.PetName = firstPet.Name
 
 		if err := saveToES(espetrea, PETREACTION_INDEX, ""); err != nil {
 			http.Error(w, "Cannot save pet reaction data from client", http.StatusBadRequest)
