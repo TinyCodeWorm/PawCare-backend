@@ -10,6 +10,20 @@ import (
 )
 
 func savePet(myESPet *esPet, file multipart.File) error {
+
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name", myESPet.Name))
+	query.Must(elastic.NewTermQuery("owner_email", myESPet.OwnerEmail))
+
+	searchResult, err := readFromES(query, PET_INDEX)
+	if err != nil {
+		return err
+	}
+
+	if searchResult.TotalHits() > 0 {
+		return fmt.Errorf("the pet name exists: %s", myESPet.Name)
+	}
+
 	if file != nil {
 		medialink, err := saveToGCS(file, myESPet.PetID)
 		if err != nil {
@@ -20,30 +34,15 @@ func savePet(myESPet *esPet, file multipart.File) error {
 	return saveToES(myESPet, PET_INDEX, myESPet.PetID)
 }
 
-// func addPetData() {
-// 	var arrayPet = [2][10]string{
-// 		{"dog1", "description", "ss", "dsds", "dsds", "ss", "dsds", "dsds", "a@b.com", "1"},
-// 		{"dog2", "description", "ss", "dsds", "dsds", "ss", "dsds", "dsds", "a@b.com", "2"},
-// 	}
+func deletPet(useremail string, petname string) error {
 
-// 	for _, v := range arrayPet {
-// 		pet := esPet{
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("owner_email", useremail))
+	query.Must(elastic.NewTermQuery("name", petname))
 
-// 			Name:       v[0],
-// 			Photourl:   v[1],
-// 			Type:       v[2],
-// 			Weight:     v[3],
-// 			AgeYear:    v[4],
-// 			AgeMonth:   v[5],
-// 			Sex:        v[6],
-// 			Breed:      v[7],
-// 			OwnerEmail: v[8],
-// 			PetID:      v[9],
-// 		}
-// 		saveToES(&pet, PET_INDEX, "")
-// 		fmt.Println(" add pet ")
-// 	}
-// }
+	return deleteFromES(query, PET_INDEX)
+
+}
 
 func getPetReactions(w http.ResponseWriter, email string) ([]PetReaction, error) {
 	query := elastic.NewBoolQuery()
@@ -76,13 +75,23 @@ func uploadPetRea(w http.ResponseWriter, petrea Petrea, email string) {
 	var reas = petrea.Reactions
 	var espetrea esPetReaction
 
+	pets, err := getPets(w, email)
+	if err != nil {
+		return
+	}
+	if pets == nil {
+		http.Error(w, "no pet exists", http.StatusBadRequest)
+		return
+	}
+
+	firstPet := pets[0]
+
 	for _, rea := range reas {
 		espetrea.ReactionName = rea
 		espetrea.OwnerEmail = email
 		espetrea.FoodName = petrea.FoodName
 		espetrea.ReactionDate = petrea.ReactionDate
-		espetrea.PetName = "temp pet name"
-		//need a get pet function to add the pet name
+		espetrea.PetName = firstPet.Name
 
 		if err := saveToES(espetrea, PETREACTION_INDEX, ""); err != nil {
 			http.Error(w, "Cannot save pet reaction data from client", http.StatusBadRequest)
