@@ -16,6 +16,29 @@ const (
 	BREED_INDEX       = "breed"
 )
 
+func updateES(query *elastic.BoolQuery, Script string, index string) error {
+
+	client, err := elastic.NewClient(
+		elastic.SetSniff(false),
+		elastic.SetURL(ES_URL),
+		elastic.SetBasicAuth(ES_USERNAME, ES_PASSWORD))
+	if err != nil {
+		return err
+	}
+
+	upRes, err := client.UpdateByQuery().
+		Query(query).
+		Script(elastic.NewScriptInline(Script)).
+		Index(index).Do(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("total updated: %v\n records.", upRes.Total)
+	return nil
+}
+
 func readFromES(query elastic.Query, index string) (*elastic.SearchResult, error) {
 	client, err := elastic.NewClient(
 		elastic.SetSniff(false),

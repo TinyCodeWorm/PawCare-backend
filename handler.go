@@ -9,6 +9,7 @@ import (
 	"time"
 
 	jwt "github.com/form3tech-oss/jwt-go"
+	"github.com/olivere/elastic/v7"
 	"github.com/pborman/uuid"
 )
 
@@ -189,12 +190,79 @@ func uploadpetHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = savePet(&myESPet, file)
 	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to save pet:%v", err), http.StatusInternalServerError)
+		fmt.Printf("Failed to save pet: %v\n", err)
+		return
+	}
+
+	fmt.Println("Pet is saved successfully.")
+}
+
+func editpetHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one edit request")
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"].(string)
+
+	beforePetName := r.FormValue("before_name")
+	currentName := r.FormValue("current_name")
+
+	//update pet name in PETREACTION_INDEX
+	if beforePetName != currentName {
+		query := elastic.NewBoolQuery()
+		query.Must(elastic.NewTermQuery("pet_name", beforePetName))
+		query.Must(elastic.NewTermQuery("owner_email", useremail))
+
+		Script := fmt.Sprintf("ctx._source.pet_name = '%s'", currentName)
+		err := updateES(query, Script, PETREACTION_INDEX)
+		if err != nil {
+			http.Error(w, "Failed to update pet name in  PETREACTION_INDEX", http.StatusInternalServerError)
+			fmt.Printf("Failed to update pet name in  PETREACTION_INDEX %v\n", err)
+			return
+		}
+	}
+
+	deletPet(useremail, beforePetName)
+
+	myESPet := esPet{
+		PetID:      uuid.New(),
+		OwnerEmail: useremail,
+		Name:       currentName,
+		Type:       r.FormValue("type"),
+		Weight:     r.FormValue("weight"),
+		AgeYear:    r.FormValue("ageyear"),
+		AgeMonth:   r.FormValue("agemonth"),
+		Sex:        r.FormValue("sex"),
+		Breed:      r.FormValue("breed"),
+	}
+
+	file, header, err := r.FormFile("photo")
+	if err == nil {
+		suffix := filepath.Ext(header.Filename)
+		if _, ok := PhotoTypes[suffix]; !ok {
+			fmt.Printf("Photo format is not supported %v\n", err)
+			http.Error(w, "Photo format is not supported", http.StatusBadRequest)
+			return
+
+		}
+	}
+
+	err = savePet(&myESPet, file)
+	if err != nil {
 		http.Error(w, "Failed to save post to GCS or Elasticsearch", http.StatusInternalServerError)
 		fmt.Printf("Failed to save post to GCS or Elasticsearch %v\n", err)
 		return
 	}
 
-	fmt.Println("Pet is saved successfully.")
+	fmt.Println("Pet is update successfully.")
 }
 
 func getfoodsHandler(w http.ResponseWriter, r *http.Request) {
