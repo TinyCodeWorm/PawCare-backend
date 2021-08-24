@@ -45,34 +45,6 @@ type esPet struct {
 	Breed      string `json:"breed"`
 }
 
-func toEsPet(pet *Pet) esPet {
-	return esPet{
-		PetID:      "",
-		OwnerEmail: "",
-		Name:       pet.Name,
-		Photourl:   pet.Photourl,
-		Type:       pet.Type,
-		Weight:     pet.Weight,
-		AgeYear:    pet.AgeYear,
-		AgeMonth:   pet.AgeMonth,
-		Sex:        pet.Sex,
-		Breed:      pet.Breed,
-	}
-}
-
-func toPet(espet *esPet) Pet {
-	return Pet{
-		Photourl: espet.Photourl,
-		Type:     espet.Type,
-		Name:     espet.Name,
-		Weight:   espet.Weight,
-		AgeYear:  espet.AgeYear,
-		AgeMonth: espet.AgeMonth,
-		Sex:      espet.Sex,
-		Breed:    espet.Breed,
-	}
-}
-
 type Food struct {
 	FoodName    string `json:"name"`
 	Brand       string `json:"brand"`
@@ -94,33 +66,6 @@ type esFood struct {
 	Ingredient4 string `json:"ingredient4"`
 	Ingredient5 string `json:"ingredient5"`
 	Ingredient6 string `json:"ingredient6"`
-}
-
-func toEsFood(food *Food) esFood {
-	return esFood{
-		OwnerEmail:  "",
-		FoodName:    food.FoodName,
-		Brand:       food.Brand,
-		Ingredient1: food.Ingredient1,
-		Ingredient2: food.Ingredient2,
-		Ingredient3: food.Ingredient3,
-		Ingredient4: food.Ingredient4,
-		Ingredient5: food.Ingredient5,
-		Ingredient6: food.Ingredient6,
-	}
-}
-
-func toFood(esfood *esFood) Food {
-	return Food{
-		FoodName:    esfood.FoodName,
-		Brand:       esfood.Brand,
-		Ingredient1: esfood.Ingredient1,
-		Ingredient2: esfood.Ingredient2,
-		Ingredient3: esfood.Ingredient3,
-		Ingredient4: esfood.Ingredient4,
-		Ingredient5: esfood.Ingredient5,
-		Ingredient6: esfood.Ingredient6,
-	}
 }
 
 type Reaction struct {
