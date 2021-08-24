@@ -9,6 +9,7 @@ import (
 	"time"
 
 	jwt "github.com/form3tech-oss/jwt-go"
+	"github.com/gorilla/mux"
 	"github.com/olivere/elastic/v7"
 	"github.com/pborman/uuid"
 )
@@ -149,6 +150,31 @@ func getpetsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(js)
+}
+
+func deletepetHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one delete pet request")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	useremail := claims.(jwt.MapClaims)["email"].(string)
+
+	name := mux.Vars(r)["name"]
+
+	if err := deletePet(name, useremail); err != nil {
+		http.Error(w, "Failed to delete pet from Elasticsearch", http.StatusInternalServerError)
+		fmt.Printf("Failed to delete pet from Elasticsearch %v\n", err)
+		return
+	}
+	fmt.Println("pet is deleted successfully")
+
 }
 
 func uploadpetHandler(w http.ResponseWriter, r *http.Request) {

@@ -32,9 +32,9 @@ func savePet(myESPet *esPet, file multipart.File) error {
 		myESPet.Photourl = medialink
 	} else {
 		if myESPet.Type == "Dog" || myESPet.Type == "dog" {
-			myESPet.Photourl = "https://storage.googleapis.com/pawcare-bucket/IMG_7343.JPG"
-		} else {
 			myESPet.Photourl = "https://storage.googleapis.com/pawcare-bucket/IMG_7342.JPG"
+		} else {
+			myESPet.Photourl = "https://storage.googleapis.com/pawcare-bucket/IMG_7343.JPG"
 		}
 
 	}
@@ -133,4 +133,12 @@ func getPets(w http.ResponseWriter, email string) ([]Pet, error) {
 	}
 
 	return allPets, nil
+}
+
+func deletePet(name string, email string) error {
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name", name))
+	query.Must(elastic.NewTermQuery("owner_email", email))
+
+	return deleteFromES(query, PET_INDEX)
 }
