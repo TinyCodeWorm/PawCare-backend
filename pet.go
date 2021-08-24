@@ -30,6 +30,13 @@ func savePet(myESPet *esPet, file multipart.File) error {
 			return err
 		}
 		myESPet.Photourl = medialink
+	} else {
+		if myESPet.Type == "Dog" || myESPet.Type == "dog" {
+			myESPet.Photourl = "https://storage.googleapis.com/pawcare-bucket/IMG_7343.JPG"
+		} else {
+			myESPet.Photourl = "https://storage.googleapis.com/pawcare-bucket/IMG_7342.JPG"
+		}
+
 	}
 	return saveToES(myESPet, PET_INDEX, myESPet.PetID)
 }
