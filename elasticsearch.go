@@ -39,6 +39,19 @@ func updateES(query *elastic.BoolQuery, Script string, index string) error {
 	return nil
 }
 
+func checkExistInES(query elastic.Query, index string) (bool, error) {
+	searchResult, err := readFromES(query, index)
+	if err != nil {
+		return false, err
+	}
+
+	if searchResult.TotalHits() > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func readFromES(query elastic.Query, index string) (*elastic.SearchResult, error) {
 	client, err := elastic.NewClient(
 		elastic.SetSniff(false),

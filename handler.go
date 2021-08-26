@@ -168,6 +168,23 @@ func deletepetHandler(w http.ResponseWriter, r *http.Request) {
 
 	name := mux.Vars(r)["name"]
 
+	//check pet exist
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name", name))
+	query.Must(elastic.NewTermQuery("owner_email", useremail))
+
+	result, err := checkExistInES(query, PET_INDEX)
+
+	if err != nil {
+		http.Error(w, "Failed to get pet info in  PET_INDEX", http.StatusInternalServerError)
+		fmt.Printf("Failed to get pet info in  PET_INDEX %v\n", err)
+		return
+	}
+	if !result {
+		w.Write([]byte("The pet did not exist in db!"))
+		return
+	}
+
 	if err := deletePet(name, useremail); err != nil {
 		http.Error(w, "Failed to delete pet from Elasticsearch", http.StatusInternalServerError)
 		fmt.Printf("Failed to delete pet from Elasticsearch %v\n", err)
@@ -240,6 +257,24 @@ func editpetHandler(w http.ResponseWriter, r *http.Request) {
 
 	beforePetName := r.FormValue("before_name")
 	currentName := r.FormValue("current_name")
+
+	//check pet exist
+	query := elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name", beforePetName))
+	query.Must(elastic.NewTermQuery("owner_email", useremail))
+
+	result, err := checkExistInES(query, PET_INDEX)
+
+	if err != nil {
+		http.Error(w, "Failed to get pet info in  PET_INDEX", http.StatusInternalServerError)
+		fmt.Printf("Failed to get pet info in  PET_INDEX %v\n", err)
+		return
+	}
+	if !result {
+		http.Error(w, "The pet : "+beforePetName+" did not exist in db.", http.StatusInternalServerError)
+		fmt.Printf("The pet : " + beforePetName + " did not exist in db.")
+		return
+	}
 
 	//update pet name in PETREACTION_INDEX
 	if beforePetName != currentName {
