@@ -276,50 +276,53 @@ func editpetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//update pet name in PETREACTION_INDEX
-	if beforePetName != currentName {
-		query := elastic.NewBoolQuery()
-		query.Must(elastic.NewTermQuery("pet_name", beforePetName))
-		query.Must(elastic.NewTermQuery("owner_email", useremail))
+	//update pet  in PET_INDEX
 
-		Script := fmt.Sprintf("ctx._source.pet_name = '%s'", currentName)
-		err := updateES(query, Script, PETREACTION_INDEX)
+	var url = ""
+	file, _, err := r.FormFile("photo")
+
+	if file != nil {
+		res, err := getGCSUrl(r, currentName)
 		if err != nil {
-			http.Error(w, "Failed to update pet name in  PETREACTION_INDEX", http.StatusInternalServerError)
-			fmt.Printf("Failed to update pet name in  PETREACTION_INDEX %v\n", err)
+			http.Error(w, "Failed to save photo in GCS: "+err.Error(), http.StatusInternalServerError)
+			fmt.Printf("Failed to save photo in GCS %v\n", err)
 			return
 		}
+		url = res
 	}
 
-	deletPet(useremail, beforePetName)
+	query = elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("name", beforePetName))
+	query.Must(elastic.NewTermQuery("owner_email", useremail))
 
-	myESPet := esPet{
-		PetID:      uuid.New(),
-		OwnerEmail: useremail,
-		Name:       currentName,
-		Type:       r.FormValue("type"),
-		Weight:     r.FormValue("weight"),
-		AgeYear:    r.FormValue("ageyear"),
-		AgeMonth:   r.FormValue("agemonth"),
-		Sex:        r.FormValue("sex"),
-		Breed:      r.FormValue("breed"),
-	}
+	Script := fmt.Sprintf("ctx._source.name = '%s';", currentName)
+	Script = Script + fmt.Sprintf("ctx._source.owner_email = '%s';", useremail)
+	Script = Script + fmt.Sprintf("ctx._source.type = '%s';", r.FormValue("type"))
+	Script = Script + fmt.Sprintf("ctx._source.weight = '%s';", r.FormValue("weight"))
+	Script = Script + fmt.Sprintf("ctx._source.ageyear = '%s';", r.FormValue("ageyear"))
+	Script = Script + fmt.Sprintf("ctx._source.agemonth = '%s';", r.FormValue("agemonth"))
+	Script = Script + fmt.Sprintf("ctx._source.sex = '%s';", r.FormValue("sex"))
+	Script = Script + fmt.Sprintf("ctx._source.breed = '%s';", r.FormValue("breed"))
+	Script = Script + fmt.Sprintf("ctx._source.photo = '%s'", url)
 
-	file, header, err := r.FormFile("photo")
-	if err == nil {
-		suffix := filepath.Ext(header.Filename)
-		if _, ok := PhotoTypes[suffix]; !ok {
-			fmt.Printf("Photo format is not supported %v\n", err)
-			http.Error(w, "Photo format is not supported", http.StatusBadRequest)
-			return
-
-		}
-	}
-
-	err = savePet(&myESPet, file)
+	err = updateES(query, Script, PET_INDEX)
 	if err != nil {
-		http.Error(w, "Failed to save post to GCS or Elasticsearch", http.StatusInternalServerError)
-		fmt.Printf("Failed to save post to GCS or Elasticsearch %v\n", err)
+		http.Error(w, "Failed to update pet name in  PET_INDEX", http.StatusInternalServerError)
+		fmt.Printf("Failed to update pet name in  PET_INDEX %v\n", err)
+		return
+	}
+
+	//update pet name in PETREACTION_INDEX
+
+	query = elastic.NewBoolQuery()
+	query.Must(elastic.NewTermQuery("pet_name", beforePetName))
+	query.Must(elastic.NewTermQuery("owner_email", useremail))
+
+	Script = fmt.Sprintf("ctx._source.pet_name = '%s'", currentName)
+	err = updateES(query, Script, PETREACTION_INDEX)
+	if err != nil {
+		http.Error(w, "Failed to update pet name in  PETREACTION_INDEX", http.StatusInternalServerError)
+		fmt.Printf("Failed to update pet name in  PETREACTION_INDEX %v\n", err)
 		return
 	}
 

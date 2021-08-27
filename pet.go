@@ -4,11 +4,33 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	"path/filepath"
 	"reflect"
 
 	"github.com/olivere/elastic/v7"
 )
 
+func getGCSUrl(r *http.Request, id string) (string, error) {
+
+	file, header, err := r.FormFile("photo")
+	if err == nil {
+		suffix := filepath.Ext(header.Filename)
+		if _, ok := PhotoTypes[suffix]; !ok {
+			return "", fmt.Errorf("The photo type is not supported:" + suffix)
+		}
+	}
+
+	if file != nil {
+		medialink, err := saveToGCS(file, id)
+		if err != nil {
+			return "", err
+		}
+		return medialink, nil
+	}
+
+	return "", nil
+
+}
 func savePet(myESPet *esPet, file multipart.File) error {
 
 	query := elastic.NewBoolQuery()
